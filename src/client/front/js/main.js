@@ -8,6 +8,7 @@ function checking() {
   if (!aval) {
     $("#login_container").hide(1000);
     $("#chartroom_container").show(1000);
+    $("#messageButton").hide();
     $("#localName").text(pyObj.username);
     $("#remoteName").text(pyObj.remotename);
     pyObj.setThreads();
@@ -17,7 +18,12 @@ function checking() {
     ;
   }
 }
-function putMessage(username, method, content) {
+
+function putImage(method, ImagePath) {
+  putMessage(method, '<img class="images" src="'+ ImagePath +'"height="100" width="100">');
+}
+
+function putMessage(method, content) {
   if(method == "left") {
     trueContent = '<div class="message_left"><div class="from"><span class="username">'
     + pyObj.remotename + ' </span>says:</div><div class="content"><span>'+ content +'</span></div></div>'
@@ -37,13 +43,18 @@ function getMessage() {
   message = pyObj.receiveMsg;
 
   if(message != "") {
-    putMessage(pyObj.username, "left", message);
+    var messageObj = JSON.parse(message);
+    if(messageObj.type == "Text") {
+      putMessage("left", messageObj.message);
+    } else if(messageObj.type == "Image") {
+      putImage("left", messageObj.message);
+    }
   }
 
 }
 
 function sendMessage(message_send) {
-  putMessage(username, "right", message_send);
+  putMessage("right", message_send);
   pyObj.send(message_send);
 }
 
@@ -52,5 +63,7 @@ $(document).ready(function() {
     message_send = $("#message").val();
     sendMessage(message_send)
     $("#message").val("");
+    $("#messageButton").hide();
+    $("#extendButton").show();
   });
 });
